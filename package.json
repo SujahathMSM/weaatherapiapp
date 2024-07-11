@@ -1,0 +1,20 @@
+{
+  "name": "weatherapiapp",
+  "version": "1.0.0",
+  "description": "A backend app to retrieve and send weather data using Openweathermap API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "author": "Sujahath MSM",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.5.0",
+    "node-fetch": "^3.3.2",
+    "nodemon": "^3.1.4"
+  }
+}
