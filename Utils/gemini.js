@@ -12,7 +12,7 @@ const generateWeatherText = async (weatherData) => {
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const jsonData = JSON.stringify(weatherData, null, 2);
-        const prompt = `Write a comprehensive weather report on the below weather data in a structured, readable format suitable for any device. The report should be in plain text or simple Markdown format:\n${jsonData}`;
+        const prompt = `Write a comprehensive weather summary on below data, just one paragraph is enough, use the current day's and next three day's details\n${jsonData}`;
 
         const result = await model.generateContent(prompt);
         const response = await result.response.text();

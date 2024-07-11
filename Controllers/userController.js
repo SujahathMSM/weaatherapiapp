@@ -1,8 +1,12 @@
-const { json } = require('express');
+//weatherapiapp/Controllers/userController.js
 const User = require('../Models/user');
-const getWeatherData = async (city) => {
-    const apiKey = "fca4c2186e341e599c016a70a016a787";
-    const weatherURL = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&APPID=${apiKey}`; // Note: Changed endpoint to 5-day/3-hour forecast
+const fetchCoordinates = require('../Utils/geocoding');
+const generateWeatherReport = require('../Utils/gemini');
+
+const getWeatherData = async (lat, lon) => {
+    const apiKey = process.env.OPENWEATHERMAP_API_KEY;
+    const weatherURL = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
+
     try {
         const response = await fetch(weatherURL);
         const weatherData = await response.json();
@@ -11,7 +15,7 @@ const getWeatherData = async (city) => {
         console.log("Error fetching weather data:", error);
         throw error;
     }
-}
+};
 
 const saveUser = async (req, res) => {
     const { email, location } = req.query;
@@ -21,7 +25,8 @@ const saveUser = async (req, res) => {
     }
 
     try {
-        const weatherData = await getWeatherData(location);
+        const { lat, lon } = await fetchCoordinates(location);
+        const weatherData = await getWeatherData(lat, lon);
 
         // Save the user information along with the weather data to the database
         const user = new User({
@@ -36,8 +41,9 @@ const saveUser = async (req, res) => {
     } catch (error) {
         res.status(500).send("Error fetching Weather Data");
     }
-}
+};
 
+// Note: No changes to getUser function required
 const getUser = async (req, res) => {
     const { email, date } = req.query;
 
@@ -52,14 +58,21 @@ const getUser = async (req, res) => {
             return res.status(404).send("User not found");
         }
 
-        const matchedWeatherData = user.weatherData.list.filter(element => date === element.dt_txt.split(" ")[0]);
+        const matchedWeatherData = user.weatherData.hourly.filter(element => {
+            const elementDate = new Date(element.dt * 1000).toISOString().split('T')[0];
+            return date === elementDate;
+        });
 
-        res.json(matchedWeatherData);
+        const formattedWeatherData = matchedWeatherData.map(element => ({
+            ...element,
+            date: new Date(element.dt * 1000).toLocaleString("en-US", { timeZone: user.weatherData.timezone })
+        }));
+
+        res.json(formattedWeatherData);
     } catch (error) {
         res.status(500).send("Error retrieving user data");
     }
-}
-
+};
 
 const updateLocation = async (req, res) => {
     const { email, newLocation } = req.body;
@@ -69,8 +82,8 @@ const updateLocation = async (req, res) => {
     }
 
     try {
-        // Fetch new weather data for the new location
-        const weatherData = await getWeatherData(newLocation);
+        const { lat, lon } = await fetchCoordinates(newLocation);
+        const weatherData = await getWeatherData(lat, lon);
 
         // Find the user by email and update their location and weather data
         const user = await User.findOneAndUpdate(
@@ -87,7 +100,7 @@ const updateLocation = async (req, res) => {
     } catch (error) {
         res.status(500).send("Error updating location");
     }
-}
+};
 
+module.exports = { getWeatherData, saveUser, getUser, updateLocation };
 
-module.exports = {getWeatherData, saveUser, getUser, updateLocation}
