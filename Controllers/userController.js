@@ -19,7 +19,7 @@ const getWeatherData = async (lat, lon) => {
 
 const getWeatherDataForAnyDate = async(lat, lon, date) => {
     const apiKey = process.env.OPENWEATHERMAP_API_KEY;
-    const weatherURL = `https://api.openweathermap.org/data/3.0/onecall/day_summary?lat=${lat}&lon=${lon}&date=${date}&appid=${apiKey}`;
+    const weatherURL = `https://api.openweathermap.org/data/3.0/onecall/day_summary?lat=${lat}&lon=${lon}&date=${date}&appid=${apiKey}&units=metric`;
 
     try {
         const response = await fetch(weatherURL);
