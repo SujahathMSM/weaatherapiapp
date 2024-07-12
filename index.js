@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose'); 
+const scheduleEmails = require('./Utils/scheduler');
 const userRoutes = require('./Routes/userRoutes');
 
 const app = express();
@@ -16,7 +17,8 @@ mongoose.connect(process.env.MONGODB_URI)
 .catch((error) => console.log('Error connecting to database:', error));
 
 // Function to fetch weather data
-
+// Start email scheduler
+scheduleEmails();
 
 // Routes
 app.use('/api/weather', userRoutes);
