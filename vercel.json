@@ -1,0 +1,19 @@
+{"version": 2,
+  "builds": [
+    { "src": "index.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    {
+      "src": "/api/weather/save",
+      "dest": "/api/weather/save"
+    },
+    {
+      "src": "/api/weather/retrieve",
+      "dest": "/api/weather/retrieve"
+    },
+    {
+      "src": "/api/weather/update-location",
+      "dest": "/api/weather/update-location"
+    }
+  ]
+}
