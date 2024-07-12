@@ -17,6 +17,20 @@ const getWeatherData = async (lat, lon) => {
     }
 };
 
+const getWeatherDataForAnyDate = async(lat, lon, date) => {
+    const apiKey = process.env.OPENWEATHERMAP_API_KEY;
+    const weatherURL = `https://api.openweathermap.org/data/3.0/onecall/day_summary?lat=${lat}&lon=${lon}&date=${date}&appid=${apiKey}`;
+
+    try {
+        const response = await fetch(weatherURL);
+        const weatherData = await response.json();
+        return weatherData;
+    } catch (error) {
+        console.log("Error fetching weather data:", error);
+        throw error;
+    }
+}
+
 const saveUser = async (req, res) => {
     const { email, location } = req.query;
 
@@ -156,5 +170,35 @@ const updateLocation = async (req, res) => {
     }
 };
 
-module.exports = { getWeatherData, saveUser, getUser, updateLocation, getAllUserData };
+const formatDateToYMD = (date) => {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = (`0${d.getMonth() + 1}`).slice(-2);
+    const day = (`0${d.getDate()}`).slice(-2);
+    return `${year}-${month}-${day}`;
+}
+
+const getAnyData = async (req, res) => {
+    const {email, date} = req.query;
+    if (!email){
+        return res.status(400).send("Email is required")
+    }
+    if (!date){
+        return res.status(400).send("Dateis required")
+    }
+
+    const newDate = formatDateToYMD(date);
+
+    try {
+        const user = await User.findOne({ email: email });
+        const location = user.location;
+        const { lat, lon } = await fetchCoordinates(location);
+        const weatherData = await getWeatherDataForAnyDate(lat, lon, newDate);
+        res.json(weatherData)
+    } catch (error) {
+        res.status(500).send("Error retrieving user data");
+    }
+}
+
+module.exports = { getWeatherData, saveUser, getUser, updateLocation, getAllUserData, getAnyData };
 
