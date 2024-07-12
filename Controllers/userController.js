@@ -44,15 +44,52 @@ const saveUser = async (req, res) => {
 };
 
 // Note: No changes to getUser function required
-const getUser = async (req, res) => {
-    const { email, date } = req.query;
 
-    if (!email) {
-        return res.status(400).send("Email is required");
+const getAllUserData = async (req, res) => {
+    const {email} = req.query;
+
+    if (!email){
+        return res.status(400).send("Email is required")
     }
 
     try {
         const user = await User.findOne({ email: email });
+        const formattedWeatherData = user.weatherData.hourly.map(element => ({
+            ...element,
+            date: new Date(element.dt * 1000).toLocaleString("en-US", { timeZone: user.weatherData.timezone })
+        }));
+        let dt = []
+        const details = {
+            "usermail" : user.email,
+            "location" : user.location
+        }
+        dt.push(details)
+        formattedWeatherData.forEach(element => {
+            let detWeather = {};
+            detWeather["date"] = element.date;
+            detWeather['tempertaure'] = `${element.temp} °C`;
+            detWeather['weather'] = element.weather[0];
+            detWeather['Wind Speed'] = `${element.wind_speed} m/s`;
+            dt.push(detWeather)
+
+        });
+        res.json(dt)
+    } catch (error) {
+        res.status(500).send("Error retrieving user data");
+    }
+
+    
+}
+const getUser = async (req, res) => {
+    const { email, date } = req.query;
+
+    if (!email || !date) {
+        return res.status(400).send("Email and Date are required");
+    }
+
+    try {
+        const user = await User.findOne({ email: email });
+        // console.log(user.location)
         
         if (!user) {
             return res.status(404).send("User not found");
@@ -68,7 +105,24 @@ const getUser = async (req, res) => {
             date: new Date(element.dt * 1000).toLocaleString("en-US", { timeZone: user.weatherData.timezone })
         }));
 
-        res.json(formattedWeatherData);
+        const userDetails = {
+            "userEmail" : user.email,
+            "location" : user.location
+        }
+        const wether = [];
+        wether.push(userDetails)
+        
+        formattedWeatherData.forEach(element => {
+            const data = {};
+            data["date"] = element.date;
+            data['temp'] = `${element.temp}°C`;
+            data['weather'] = element.weather[0];
+            
+            // console.log(data)
+            wether.push(data)
+        });
+        
+        res.json(wether);
     } catch (error) {
         res.status(500).send("Error retrieving user data");
     }
@@ -102,5 +156,5 @@ const updateLocation = async (req, res) => {
     }
 };
 
-module.exports = { getWeatherData, saveUser, getUser, updateLocation };
+module.exports = { getWeatherData, saveUser, getUser, updateLocation, getAllUserData };
 
