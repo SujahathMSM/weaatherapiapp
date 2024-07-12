@@ -3,4 +3,11 @@ const formatTimestamp = (timestamp, timezone) => {
     return date.toLocaleString("en-US", { timeZone: timezone });
 };
 
-module.exports = { formatTimestamp };
+const removeDuplicateHourlyData = (hourlyData) => {
+    const uniqueData = {};
+    hourlyData.forEach(item => {
+        uniqueData[item.dt] = item;
+    });
+    return Object.values(uniqueData);
+};
+module.exports = { formatTimestamp, removeDuplicateHourlyData };
