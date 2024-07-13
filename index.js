@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose'); 
 const scheduleEmails = require('./Utils/scheduler');
 const userRoutes = require('./Routes/userRoutes');
+const userAuth = require('./Routes/userAuth')
 const {errorHandler} = require('./Middleware/errorhandler');
 
 const app = express();
@@ -19,10 +20,11 @@ mongoose.connect(process.env.MONGODB_URI)
 
 // Function to fetch weather data
 // Start email scheduler
-scheduleEmails();
+// scheduleEmails();
 
 // Routes
 app.use('/api/weather', userRoutes);
+app.use('/api/user', userAuth)
 
 app.use(errorHandler)
 
