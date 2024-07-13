@@ -1,170 +1,182 @@
-Sure, here's a detailed `README.md` for your project:
-
----
-
 # Weather API App
 
-This project is a weather API application that provides weather updates to users via email. Users can register, login, and get weather updates for their specified locations.
+This Weather API App is a RESTful API that provides weather data based on user location. Users can register, log in, update their location, and retrieve weather data for current and specific dates. This app uses the OpenWeatherMap API to fetch weather data.
 
 ## Table of Contents
 
 - [Weather API App](#weather-api-app)
   - [Table of Contents](#table-of-contents)
   - [Features](#features)
-  - [Technologies](#technologies)
-  - [Prerequisites](#prerequisites)
   - [Installation](#installation)
   - [Environment Variables](#environment-variables)
-  - [API Endpoints](#api-endpoints)
-    - [User Routes](#user-routes)
-    - [Weather Routes](#weather-routes)
   - [Usage](#usage)
-  - [Error Handling](#error-handling)
-  - [Contributing](#contributing)
+    - [Authentication](#authentication)
+    - [Endpoints](#endpoints)
+      - [User Registration](#user-registration)
+      - [User Login](#user-login)
+      - [Get Current User](#get-current-user)
+      - [Save User Weather Data](#save-user-weather-data)
+      - [Retrieve User Weather Data](#retrieve-user-weather-data)
+      - [Update User Location](#update-user-location)
+      - [Delete User](#delete-user)
+    - [Validation](#validation)
+    - [Error Handling](#error-handling)
   - [License](#license)
 
 ## Features
 
-- User registration and authentication
-- Fetch and store weather data
-- Send weather updates via email
-- Update user location and fetch new weather data
-- Scheduled email updates using cron jobs
-
-## Technologies
-
-- Node.js
-- Express.js
-- MongoDB (Mongoose)
-- bcrypt for password hashing
-- JSON Web Token (JWT) for authentication
-- Node-cron for scheduling tasks
-- Nodemailer for sending emails
-- express-validator for request validation
-- async-handler for error handling
-
-## Prerequisites
-
-- Node.js (v14 or higher)
-- MongoDB instance
-- Gmail account for sending emails (or another email service)
+- User registration and login
+- Token-based authentication (JWT)
+- Update user location and fetch weather data
+- Retrieve weather data for specific dates
+- Delete user and associated weather data
 
 ## Installation
 
 1. Clone the repository:
 
-```sh
-git clone https://github.com/your-username/weather-api-app.git
-cd weather-api-app
+```bash
+git clone https://github.com/SujahathMSM/weatherapiapp.git
 ```
 
-2. Install dependencies:
+2. Navigate to the project directory:
 
-```sh
+```bash
+cd weatherapiapp
+```
+
+3. Install the dependencies:
+
+```bash
 npm install
 ```
 
-3. Set up your environment variables (see [Environment Variables](#environment-variables)).
+4. Create a `.env` file in the root directory and add the following environment variables:
 
-4. Start the application:
-
-```sh
-npm start
+```env
+PORT=your_port_number
+MONGO_URI=your_mongo_db_connection_string
+OPENWEATHERMAP_API_KEY=your_openweathermap_api_key
+ACCESS_TOKEN_SECRET=your_jwt_secret
 ```
 
 ## Environment Variables
 
-Create a `.env` file in the root directory of the project and add the following variables:
+Ensure you have the following environment variables set in your `.env` file:
 
-```env
-PORT=3000
-MONGO_URI=your_mongodb_connection_string
-EMAIL=your_email_address
-EMAIL_PASSWORD=your_email_password
-ACCESS_TOKEN_SECRET=your_jwt_secret
-```
-
-## API Endpoints
-
-### User Routes
-
-- **Register User**
-  - `POST /api/user/register`
-  - Body: `{ "username": "string", "email": "string", "password": "string" }`
-
-- **Login User**
-  - `POST /api/user/login`
-  - Body: `{ "email": "string", "password": "string" }`
-
-- **Get Current User**
-  - `POST /api/user/current`
-  - Requires authentication
-
-### Weather Routes
-
-- **Save User Weather Data**
-  - `POST /api/weather/save`
-  - Requires authentication
-  - Body: `{ "email": "string", "location": "string" }`
-
-- **Update User Location**
-  - `PUT /api/weather/update-location`
-  - Requires authentication
-  - Body: `{ "newLocation": "string" }`
-
-- **Get User Weather Data**
-  - `GET /api/weather/view`
-  - Requires authentication
-  - Query: `{ "email": "string" }`
-
-- **Get Any Weather Data**
-  - `GET /api/weather/any`
-  - Requires authentication
-  - Query: `{ "email": "string", "date": "string" }`
+- `PORT`: The port on which the server runs.
+- `MONGO_URI`: MongoDB connection string.
+- `OPENWEATHERMAP_API_KEY`: Your OpenWeatherMap API key.
+- `ACCESS_TOKEN_SECRET`: Secret key for JWT token generation.
 
 ## Usage
 
-1. **Register a new user:**
-   ```sh
-   curl -X POST http://localhost:3000/api/user/register -H "Content-Type: application/json" -d '{"username":"testuser","email":"test@example.com","password":"password123"}'
-   ```
+### Authentication
 
-2. **Login as the user:**
-   ```sh
-   curl -X POST http://localhost:3000/api/user/login -H "Content-Type: application/json" -d '{"email":"test@example.com","password":"password123"}'
-   ```
+The app uses JSON Web Tokens (JWT) for authentication. Users need to register and log in to obtain a token, which must be included in the `Authorization` header for protected routes.
 
-3. **Save weather data:**
-   ```sh
-   curl -X POST http://localhost:3000/api/weather/save -H "Authorization: Bearer <your_jwt_token>" -H "Content-Type: application/json" -d '{"email":"test@example.com","location":"New York"}'
-   ```
+### Endpoints
 
-4. **Update user location:**
-   ```sh
-   curl -X PUT http://localhost:3000/api/weather/update-location -H "Authorization: Bearer <your_jwt_token>" -H "Content-Type: application/json" -d '{"newLocation":"San Francisco"}'
-   ```
+#### User Registration
 
-5. **Get user weather data:**
-   ```sh
-   curl -X GET http://localhost:3000/api/weather/view -H "Authorization: Bearer <your_jwt_token>"
-   ```
+- **Endpoint:** `POST /api/user/register`
+- **Access:** Public
+- **Description:** Register a new user.
+- **Request Body:**
+  ```json
+  {
+    "username": "string",
+    "email": "string",
+    "password": "string"
+  }
+  ```
 
-## Error Handling
+#### User Login
 
-This application uses `express-async-handler` to handle asynchronous errors. Errors are captured and sent as JSON responses with appropriate HTTP status codes.
+- **Endpoint:** `POST /api/user/login`
+- **Access:** Public
+- **Description:** Log in a user and get a JWT token.
+- **Request Body:**
+  ```json
+  {
+    "email": "string",
+    "password": "string"
+  }
+  ```
 
-## Contributing
+#### Get Current User
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/your-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin feature/your-feature`)
-5. Create a new Pull Request
+- **Endpoint:** `GET /api/user/current`
+- **Access:** Private
+- **Description:** Get information about the current logged-in user.
+- **Headers:**
+  ```http
+  Authorization: Bearer <token>
+  ```
+
+#### Save User Weather Data
+
+- **Endpoint:** `POST /api/weather/save`
+- **Access:** Private
+- **Description:** Save user weather data based on location.
+- **Query Parameters:**
+  - `email`: User email
+  - `location`: User location
+- **Headers:**
+  ```http
+  Authorization: Bearer <token>
+  ```
+
+#### Retrieve User Weather Data
+
+- **Endpoint:** `GET /api/weather/retrieve`
+- **Access:** Private
+- **Description:** Retrieve weather data for a specific date.
+- **Query Parameters:**
+  - `date`: Date in ISO8601 format
+- **Headers:**
+  ```http
+  Authorization: Bearer <token>
+  ```
+
+#### Update User Location
+
+- **Endpoint:** `PUT /api/weather/update-location`
+- **Access:** Private
+- **Description:** Update user location and fetch new weather data.
+- **Query Parameters:**
+  - `newLocation`: New user location
+- **Headers:**
+  ```http
+  Authorization: Bearer <token>
+  ```
+
+#### Delete User
+
+- **Endpoint:** `DELETE /api/user/delete`
+- **Access:** Private
+- **Description:** Delete a user and their weather data.
+- **Headers:**
+  ```http
+  Authorization: Bearer <token>
+  ```
+
+### Validation
+
+The app uses `express-validator` for request validation. Here are some validation rules applied to the endpoints:
+
+- **Email:** Must be a valid email format.
+- **Location:** Must not be empty.
+- **Date:** Must be in ISO8601 format.
+
+### Error Handling
+
+The app uses `http-errors` for consistent error handling. Validation errors and other exceptions are caught and handled gracefully, returning appropriate HTTP status codes and error messages.
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
 ---
 
-Feel free to modify the content as per your requirements and update the sections with any additional information.
+Feel free to customize this `README.md` as needed to better fit your project's specifics and any additional features or instructions you might want to include.
