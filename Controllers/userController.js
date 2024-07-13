@@ -33,7 +33,7 @@ const getWeatherDataForAnyDate = async(lat, lon, date) => {
     }
 }
 
-const saveUser = async (req, res) => {
+const saveUser = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return next(createError(400, 'Validation Error', { errors: errors.array() }));
@@ -61,7 +61,7 @@ const saveUser = async (req, res) => {
 
 // Note: No changes to getUser function required
 
-const getAllUserData = async (req, res) => {
+const getAllUserData = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return next(createError(400, 'Validation Error', { errors: errors.array() }));
@@ -100,7 +100,7 @@ const getAllUserData = async (req, res) => {
 
     
 }
-const getUser = async (req, res) => {
+const getUser = async (req, res, next) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -153,7 +153,7 @@ const getUser = async (req, res) => {
     }
 };
 
-const updateLocation = async (req, res) => {
+const updateLocation = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return next(createError(400, 'Validation Error', { errors: errors.array() }));
@@ -185,15 +185,8 @@ const updateLocation = async (req, res) => {
     }
 };
 
-const formatDateToYMD = (date) => {
-    const d = new Date(date);
-    const year = d.getFullYear();
-    const month = (`0${d.getMonth() + 1}`).slice(-2);
-    const day = (`0${d.getDate()}`).slice(-2);
-    return `${year}-${month}-${day}`;
-}
 
-const getAnyData = async (req, res) => {
+const getAnyData = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return next(createError(400, 'Validation Error', { errors: errors.array() }));
@@ -206,13 +199,12 @@ const getAnyData = async (req, res) => {
         return res.status(400).send("Dateis required")
     }
 
-    const newDate = formatDateToYMD(date);
 
     try {
         const user = await User.findOne({ email: email });
         const location = user.location;
         const { lat, lon } = await fetchCoordinates(location);
-        const weatherData = await getWeatherDataForAnyDate(lat, lon, newDate);
+        const weatherData = await getWeatherDataForAnyDate(lat, lon, date);
         res.json(weatherData)
     } catch (error) {
         next(createError(500, 'Error retrieving user data', error));
