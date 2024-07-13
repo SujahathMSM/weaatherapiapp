@@ -1,167 +1,114 @@
-# Weather API App
+# Weather API APP - AWS-EC2
 
-This Weather API App is a RESTful API that provides weather data based on user location. Users can register, log in, update their location, and retrieve weather data for current and specific dates. This app uses the OpenWeatherMap API to fetch weather data.
+## Introduction
+
+The Weather API hosted on AWS EC2 provides a set of endpoints for user management, weather data management, and retrieval. This API allows users to register, authenticate, save, retrieve, update, and delete weather data associated with their accounts.
+
+**Base URL:** `http://13.53.107.142/api`
 
 ## Table of Contents
 
-- [Weather API App](#weather-api-app)
-  - [Table of Contents](#table-of-contents)
-  - [Features](#features)
-  - [Installation](#installation)
-  - [Environment Variables](#environment-variables)
-  - [Usage](#usage)
-    - [Authentication](#authentication)
-    - [Endpoints](#endpoints)
-      - [User Registration](#user-registration)
-      - [User Login](#user-login)
-      - [Get Current User](#get-current-user)
-      - [Save User Weather Data](#save-user-weather-data)
-      - [Retrieve User Weather Data](#retrieve-user-weather-data)
-      - [Update User Location](#update-user-location)
-      - [Delete User](#delete-user)
-    - [Validation](#validation)
-    - [Error Handling](#error-handling)
-  - [License](#license)
+- [Authentication](#authentication)
+- [Users](#users)
+  - [Register New User](#register-new-user)
+  - [Login](#login)
+  - [View User Details](#view-user-details)
+- [Weather Data](#weather-data)
+  - [Save Weather Data](#save-weather-data)
+  - [Retrieve Saved Weather Data](#retrieve-saved-weather-data)
+  - [Update User's Location](#update-users-location)
+  - [Retrieve Weather Data by Date](#retrieve-weather-data-by-date)
+  - [Get Weather Data for Given Date](#get-weather-data-for-given-date)
+  - [Delete User and Weather Data](#delete-user-and-weather-data)
+- [Validation](#validation)
+- [Error Handling](#error-handling)
+- [License](#license)
 
-## Features
+## Authentication
 
-- User registration and login
-- Token-based authentication (JWT)
-- Update user location and fetch weather data
-- Retrieve weather data for specific dates
-- Delete user and associated weather data
+Authentication for accessing protected endpoints is handled via JWT (JSON Web Tokens). Users obtain a token through the login endpoint and include it in the `Authorization` header for subsequent requests.
 
-## Installation
+## Users
 
-1. Clone the repository:
+### Register New User
 
-```bash
-git clone https://github.com/SujahathMSM/weatherapiapp.git
-```
+- **Endpoint**: `POST /user/register`
+- **Description**: Registers a new user with the system.
+- **Request Body**:
+    ```json
+    {
+      "username": "awsapitester",
+      "email": "sujahathmsm98@gmail.com",
+      "password": "awsapitester1234"
+    }
+    ```
 
-2. Navigate to the project directory:
+### Login
 
-```bash
-cd weatherapiapp
-```
+- **Endpoint**: `POST /user/login`
+- **Description**: Authenticates a user and generates a JWT token.
+- **Request Body**:
+    ```json
+    {
+      "email": "sujahathmsm98@gmail.com",
+      "password": "awsapitester1234"
+    }
+    ```
 
-3. Install the dependencies:
+### View User Details
 
-```bash
-npm install
-```
+- **Endpoint**: `GET /user/current`
+- **Description**: Retrieves details of the currently logged-in user.
+- **Authorization**: Bearer Token required.
 
-4. Create a `.env` file in the root directory and add the following environment variables:
+## Weather Data
 
-```env
-PORT=your_port_number
-MONGO_URI=your_mongo_db_connection_string
-OPENWEATHERMAP_API_KEY=your_openweathermap_api_key
-ACCESS_TOKEN_SECRET=your_jwt_secret
-```
+### Save Weather Data
 
-## Environment Variables
+- **Endpoint**: `POST /weather/save`
+- **Description**: Saves weather data for a specific location.
+- **Query Parameters**:
+    - `email`: User's email address
+    - `location`: Location for which weather data is being saved.
+- **Authorization**: Bearer Token required.
 
-Ensure you have the following environment variables set in your `.env` file:
+### Retrieve Saved Weather Data
 
-- `PORT`: The port on which the server runs.
-- `MONGO_URI`: MongoDB connection string.
-- `OPENWEATHERMAP_API_KEY`: Your OpenWeatherMap API key.
-- `ACCESS_TOKEN_SECRET`: Secret key for JWT token generation.
+- **Endpoint**: `GET /weather/view`
+- **Description**: Retrieves all saved weather data associated with the current user.
+- **Authorization**: Bearer Token required.
 
-## Usage
+### Update User's Location
 
-### Authentication
+- **Endpoint**: `PUT /weather/update-location`
+- **Description**: Updates the location associated with the current user.
+- **Query Parameters**:
+    - `newLocation`: New location to update.
+- **Authorization**: Bearer Token required.
 
-The app uses JSON Web Tokens (JWT) for authentication. Users need to register and log in to obtain a token, which must be included in the `Authorization` header for protected routes.
+### Retrieve Weather Data by Date
 
-### Endpoints
+- **Endpoint**: `GET /weather/retrieve`
+- **Description**: Retrieves weather data for a specific date from the database.
+- **Query Parameters**:
+    - `date`: Date for which weather data is requested (e.g., `2024-07-13`).
+- **Authorization**: Bearer Token required.
 
-#### User Registration
+### Get Weather Data for Given Date
 
-- **Endpoint:** `POST /api/user/register`
-- **Access:** Public
-- **Description:** Register a new user.
-- **Request Body:**
-  ```json
-  {
-    "username": "string",
-    "email": "string",
-    "password": "string"
-  }
-  ```
+- **Endpoint**: `GET /weather/any`
+- **Description**: Retrieves weather data for any given date.
+- **Query Parameters**:
+    - `date`: Date for which weather data is requested (e.g., `2004-12-25`).
+- **Authorization**: Bearer Token required.
 
-#### User Login
+### Delete User and Weather Data
 
-- **Endpoint:** `POST /api/user/login`
-- **Access:** Public
-- **Description:** Log in a user and get a JWT token.
-- **Request Body:**
-  ```json
-  {
-    "email": "string",
-    "password": "string"
-  }
-  ```
+- **Endpoint**: `DELETE /weather/delete`
+- **Description**: Deletes the current user and associated weather data.
+- **Authorization**: Bearer Token required.
 
-#### Get Current User
-
-- **Endpoint:** `GET /api/user/current`
-- **Access:** Private
-- **Description:** Get information about the current logged-in user.
-- **Headers:**
-  ```http
-  Authorization: Bearer <token>
-  ```
-
-#### Save User Weather Data
-
-- **Endpoint:** `POST /api/weather/save`
-- **Access:** Private
-- **Description:** Save user weather data based on location.
-- **Query Parameters:**
-  - `email`: User email
-  - `location`: User location
-- **Headers:**
-  ```http
-  Authorization: Bearer <token>
-  ```
-
-#### Retrieve User Weather Data
-
-- **Endpoint:** `GET /api/weather/retrieve`
-- **Access:** Private
-- **Description:** Retrieve weather data for a specific date.
-- **Query Parameters:**
-  - `date`: Date in ISO8601 format
-- **Headers:**
-  ```http
-  Authorization: Bearer <token>
-  ```
-
-#### Update User Location
-
-- **Endpoint:** `PUT /api/weather/update-location`
-- **Access:** Private
-- **Description:** Update user location and fetch new weather data.
-- **Query Parameters:**
-  - `newLocation`: New user location
-- **Headers:**
-  ```http
-  Authorization: Bearer <token>
-  ```
-
-#### Delete User
-
-- **Endpoint:** `DELETE /api/user/delete`
-- **Access:** Private
-- **Description:** Delete a user and their weather data.
-- **Headers:**
-  ```http
-  Authorization: Bearer <token>
-  ```
-
-### Validation
+## Validation
 
 The app uses `express-validator` for request validation. Here are some validation rules applied to the endpoints:
 
@@ -169,10 +116,17 @@ The app uses `express-validator` for request validation. Here are some validatio
 - **Location:** Must not be empty.
 - **Date:** Must be in ISO8601 format.
 
-### Error Handling
+## Error Handling
 
 The app uses `http-errors` for consistent error handling. Validation errors and other exceptions are caught and handled gracefully, returning appropriate HTTP status codes and error messages.
 
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
+---
+
+Feel free to further customize this `README.md` as needed to better fit your project's specifics and any additional features or instructions you might want to include.
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
