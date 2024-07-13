@@ -3,6 +3,9 @@ const { check } = require('express-validator');
 const router = express.Router();
 const { saveUser, getUser, updateLocation,getAllUserData, getAnyData} = require('../Controllers/userController');
 const User = require('../Models/user');
+const validateToken = require('../Middleware/validateTokenHandler');
+
+router.use(validateToken)
 
 router.get('/', (req, res) => res.send("App is live now"))
 router.post('/save', [
@@ -11,21 +14,16 @@ router.post('/save', [
 ], saveUser);
 
 router.get('/retrieve', [
-    check('email').isEmail().withMessage('Invalid email address'),
-    check('date').isISO8601().withMessage('Invalid date format, use YYYY-MM-DD Format')
+   check('date').isISO8601().withMessage('Invalid date format, use YYYY-MM-DD Format')
 ], getUser);
 
 router.put('/update-location',  [
-    check('email').isEmail().withMessage('Invalid email address'),
-    check('location').notEmpty().withMessage('Location is required')
+    check('newLocation').notEmpty().withMessage('Location is required')
 ],updateLocation )
 
-router.get('/view',  [
-    check('email').isEmail().withMessage('Invalid email address')
-],getAllUserData)
+router.get('/view', getAllUserData)
 
 router.get('/any',  [
-    check('email').isEmail().withMessage('Invalid email address'),
     check('date').isISO8601().withMessage('Invalid date format, use YYYY-MM-DD Format')
 ],getAnyData)
 

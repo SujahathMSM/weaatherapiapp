@@ -20,7 +20,7 @@ mongoose.connect(process.env.MONGODB_URI)
 
 // Function to fetch weather data
 // Start email scheduler
-// scheduleEmails();
+scheduleEmails();
 
 // Routes
 app.use('/api/weather', userRoutes);

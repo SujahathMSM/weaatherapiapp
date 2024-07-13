@@ -48,7 +48,8 @@ const saveUser = async (req, res, next) => {
         const user = new User({
             email: email,
             location: location,
-            weatherData: weatherData
+            weatherData: weatherData,
+            user_id : req.exUser.id
         });
 
         await user.save();
@@ -66,23 +67,24 @@ const getAllUserData = async (req, res, next) => {
     if (!errors.isEmpty()) {
         return next(createError(400, 'Validation Error', { errors: errors.array() }));
     }
-    const {email} = req.query;
+    // const {email} = req.query;
 
     // if (!email){
     //     return res.status(400).send("Email is required")
     // }
 
     try {
-        const user = await User.findOne({ email: email });
-        const formattedWeatherData = user.weatherData.hourly.map(element => ({
+        const user = await User.find({ user_id: req.exUser.id });
+        const formattedWeatherData = user[0].weatherData.hourly.map(element => ({
             ...element,
-            date: new Date(element.dt * 1000).toLocaleString("en-US", { timeZone: user.weatherData.timezone })
+            date: new Date(element.dt * 1000).toLocaleString("en-US", { timeZone: user[0].weatherData.timezone })
         }));
         let dt = []
         const details = {
-            "usermail" : user.email,
-            "location" : user.location
+            "usermail" : user[0].email,
+            "location" : user[0].location
         }
+        console.log(details)
         dt.push(details)
         formattedWeatherData.forEach(element => {
             let detWeather = {};
@@ -106,14 +108,14 @@ const getUser = async (req, res, next) => {
     if (!errors.isEmpty()) {
         return next(createError(400, 'Validation Error', { errors: errors.array() }));
     }
-    const { email, date } = req.query;
+    const { date } = req.query;
 
     // if (!email || !date) {
     //     return res.status(400).send("Email and Date are required");
     // }
 
     try {
-        const user = await User.findOne({ email: email });
+        const user = await User.findOne({ user_id: req.exUser.id });
         // console.log(user.location)
         
         if (!user) {
@@ -158,19 +160,19 @@ const updateLocation = async (req, res, next) => {
     if (!errors.isEmpty()) {
         return next(createError(400, 'Validation Error', { errors: errors.array() }));
     }
-    const { email, newLocation } = req.body;
+    const { newLocation } = req.query;
 
-    // if (!email || !newLocation) {
-    //     return res.status(400).send("Email and new location are required");
-    // }
+    if (!newLocation) {
+        return res.status(400).send("New location is required");
+    }
 
     try {
         const { lat, lon } = await fetchCoordinates(newLocation);
         const weatherData = await getWeatherData(lat, lon);
 
-        // Find the user by email and update their location and weather data
+        // Find the user by ID (decoded from the token) and update their location and weather data
         const user = await User.findOneAndUpdate(
-            { email: email },
+            { user_id: req.exUser.id },
             { location: newLocation, weatherData: weatherData },
             { new: true } // Return the updated document
         );
@@ -185,13 +187,12 @@ const updateLocation = async (req, res, next) => {
     }
 };
 
-
 const getAnyData = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return next(createError(400, 'Validation Error', { errors: errors.array() }));
     }
-    const {email, date} = req.query;
+    const {date} = req.query;
     // if (!email){
     //     return res.status(400).send("Email is required")
     // }
@@ -201,7 +202,7 @@ const getAnyData = async (req, res, next) => {
 
 
     try {
-        const user = await User.findOne({ email: email });
+        const user = await User.findOne({ user_id: req.exUser.id });
         const location = user.location;
         const { lat, lon } = await fetchCoordinates(location);
         const weatherData = await getWeatherDataForAnyDate(lat, lon, date);
