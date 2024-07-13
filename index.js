@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose'); 
 const scheduleEmails = require('./Utils/scheduler');
 const userRoutes = require('./Routes/userRoutes');
+const {errorHandler, notFoundHandler} = require('./Middleware/errorhandler');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -22,6 +23,9 @@ scheduleEmails();
 
 // Routes
 app.use('/api/weather', userRoutes);
+
+app.use(errorHandler)
+app.use(notFoundHandler)
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

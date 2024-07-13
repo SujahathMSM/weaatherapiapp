@@ -2,6 +2,8 @@
 const User = require('../Models/user');
 const fetchCoordinates = require('../Utils/geocoding');
 const generateWeatherReport = require('../Utils/gemini');
+const { validationResult } = require('express-validator');
+const createError = require('http-errors');
 
 const getWeatherData = async (lat, lon) => {
     const apiKey = process.env.OPENWEATHERMAP_API_KEY;
@@ -32,11 +34,11 @@ const getWeatherDataForAnyDate = async(lat, lon, date) => {
 }
 
 const saveUser = async (req, res) => {
-    const { email, location } = req.query;
-
-    if (!email || !location) {
-        return res.status(400).send("Email and location are required");
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return next(createError(400, 'Validation Error', { errors: errors.array() }));
     }
+    const { email, location } = req.query;
 
     try {
         const { lat, lon } = await fetchCoordinates(location);
@@ -53,18 +55,22 @@ const saveUser = async (req, res) => {
 
         res.json({ message: "Weather data saved successfully", weatherData });
     } catch (error) {
-        res.status(500).send("Error fetching Weather Data");
+        next(createError(500, 'Error saving user', error));
     }
 };
 
 // Note: No changes to getUser function required
 
 const getAllUserData = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return next(createError(400, 'Validation Error', { errors: errors.array() }));
+    }
     const {email} = req.query;
 
-    if (!email){
-        return res.status(400).send("Email is required")
-    }
+    // if (!email){
+    //     return res.status(400).send("Email is required")
+    // }
 
     try {
         const user = await User.findOne({ email: email });
@@ -89,17 +95,22 @@ const getAllUserData = async (req, res) => {
         });
         res.json(dt)
     } catch (error) {
-        res.status(500).send("Error retrieving user data");
+        next(createError(500, 'Error retrieving user data', error));
     }
 
     
 }
 const getUser = async (req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return next(createError(400, 'Validation Error', { errors: errors.array() }));
+    }
     const { email, date } = req.query;
 
-    if (!email || !date) {
-        return res.status(400).send("Email and Date are required");
-    }
+    // if (!email || !date) {
+    //     return res.status(400).send("Email and Date are required");
+    // }
 
     try {
         const user = await User.findOne({ email: email });
@@ -138,16 +149,20 @@ const getUser = async (req, res) => {
         
         res.json(wether);
     } catch (error) {
-        res.status(500).send("Error retrieving user data");
+        next(createError(500, 'Error retrieving user data', error));
     }
 };
 
 const updateLocation = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return next(createError(400, 'Validation Error', { errors: errors.array() }));
+    }
     const { email, newLocation } = req.body;
 
-    if (!email || !newLocation) {
-        return res.status(400).send("Email and new location are required");
-    }
+    // if (!email || !newLocation) {
+    //     return res.status(400).send("Email and new location are required");
+    // }
 
     try {
         const { lat, lon } = await fetchCoordinates(newLocation);
@@ -166,7 +181,7 @@ const updateLocation = async (req, res) => {
 
         res.json({ message: "Location updated successfully", weatherData });
     } catch (error) {
-        res.status(500).send("Error updating location");
+        next(createError(500, 'Error updating location', error));
     }
 };
 
@@ -179,10 +194,14 @@ const formatDateToYMD = (date) => {
 }
 
 const getAnyData = async (req, res) => {
-    const {email, date} = req.query;
-    if (!email){
-        return res.status(400).send("Email is required")
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return next(createError(400, 'Validation Error', { errors: errors.array() }));
     }
+    const {email, date} = req.query;
+    // if (!email){
+    //     return res.status(400).send("Email is required")
+    // }
     if (!date){
         return res.status(400).send("Dateis required")
     }
@@ -196,7 +215,7 @@ const getAnyData = async (req, res) => {
         const weatherData = await getWeatherDataForAnyDate(lat, lon, newDate);
         res.json(weatherData)
     } catch (error) {
-        res.status(500).send("Error retrieving user data");
+        next(createError(500, 'Error retrieving user data', error));
     }
 }
 
