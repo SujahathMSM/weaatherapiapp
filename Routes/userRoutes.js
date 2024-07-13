@@ -1,7 +1,7 @@
 const express = require('express');
 const { check } = require('express-validator');
 const router = express.Router();
-const { saveUser, getUser, updateLocation,getAllUserData, getAnyData} = require('../Controllers/userController');
+const { saveUser, getUser, updateLocation,getAllUserData, getAnyData, deleteUser} = require('../Controllers/userController');
 const User = require('../Models/user');
 const validateToken = require('../Middleware/validateTokenHandler');
 
@@ -26,5 +26,7 @@ router.get('/view', getAllUserData)
 router.get('/any',  [
     check('date').isISO8601().withMessage('Invalid date format, use YYYY-MM-DD Format')
 ],getAnyData)
+
+router.delete('/delete', deleteUser )
 
 module.exports = router;

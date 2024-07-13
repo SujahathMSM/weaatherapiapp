@@ -212,5 +212,24 @@ const getAnyData = async (req, res, next) => {
     }
 }
 
-module.exports = { getWeatherData, saveUser, getUser, updateLocation, getAllUserData, getAnyData };
+const deleteUser = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return next(createError(400, 'Validation Error', { errors: errors.array() }));
+    }
+
+    try {
+        const user = await User.findOneAndDelete({ user_id: req.exUser.id });
+
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
+
+        res.json({ message: "User and weather data deleted successfully" });
+    } catch (error) {
+        next(createError(500, 'Error deleting user', error));
+    }
+};
+
+module.exports = { getWeatherData, saveUser, getUser, updateLocation, getAllUserData, getAnyData, deleteUser };
 
