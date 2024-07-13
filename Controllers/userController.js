@@ -84,7 +84,6 @@ const getAllUserData = async (req, res, next) => {
             "usermail" : user[0].email,
             "location" : user[0].location
         }
-        console.log(details)
         dt.push(details)
         formattedWeatherData.forEach(element => {
             let detWeather = {};
