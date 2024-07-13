@@ -124,13 +124,3 @@ The app uses `http-errors` for consistent error handling. Validation errors and 
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
----
-
-Feel free to further customize this `README.md` as needed to better fit your project's specifics and any additional features or instructions you might want to include.
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
-
----
-
-Feel free to customize this `README.md` as needed to better fit your project's specifics and any additional features or instructions you might want to include.
