@@ -5,9 +5,10 @@ const { saveUser, getUser, updateLocation,getAllUserData, getAnyData, deleteUser
 const User = require('../Models/user');
 const validateToken = require('../Middleware/validateTokenHandler');
 
+router.get('/', (req, res) => res.send("App is live now"))
 router.use(validateToken)
 
-router.get('/', (req, res) => res.send("App is live now"))
+
 router.post('/save', [
     check('email').isEmail().withMessage('Invalid email address'),
     check('location').notEmpty().withMessage('Location is required')
