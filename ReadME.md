@@ -4,7 +4,7 @@
 
 The Weather API hosted on AWS EC2 provides a set of endpoints for user management, weather data management, and retrieval. This API allows users to register, authenticate, save, retrieve, update, and delete weather data associated with their accounts.
 
-**Base URL:** `http://13.53.107.142/api`
+**Base URL:** `http://13.53.107.142/api/weather`
 
 ## Table of Contents
 
