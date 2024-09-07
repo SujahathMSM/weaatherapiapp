@@ -14,7 +14,7 @@ router.post('/save', [
     check('location').notEmpty().withMessage('Location is required')
 ], saveUser);
 
-router.get('/retrieve', [
+router.get('/retrieve', [ // a comment
    check('date').isISO8601().withMessage('Invalid date format, use YYYY-MM-DD Format')
 ], getUser);
 
