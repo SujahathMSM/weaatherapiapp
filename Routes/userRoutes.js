@@ -10,6 +10,7 @@ router.use(validateToken)
 
 
 router.post('/save', [
+    // validation check
     check('email').isEmail().withMessage('Invalid email address'),
     check('location').notEmpty().withMessage('Location is required')
 ], saveUser);
