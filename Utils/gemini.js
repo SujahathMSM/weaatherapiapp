@@ -1,7 +1,5 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-require('dotenv').config(); // To load environment variables from .env file
-
-// Access your API key as an environment variable.
+// clearing unwanted comments 
 const apiKey = process.env.GEMINI_API_KEY;
 
 if (!apiKey) {
@@ -12,12 +10,10 @@ const genAI = new GoogleGenerativeAI(apiKey);
 
 const generateWeatherText = async (weatherData, location) => {
     try {
-        // Ensure the weatherData and location are provided
         if (!weatherData || !location) {
             throw new Error('Missing required parameters: weatherData or location');
         }
 
-        // Choose a model that's appropriate for your use case.
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         if (!model) {
