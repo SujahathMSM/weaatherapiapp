@@ -8,6 +8,7 @@ const fetchCoordinates = async (address) => {
 
     if (!address) {
         throw new Error('Address parameter is required');
+        // made a change
     }
 
     const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
